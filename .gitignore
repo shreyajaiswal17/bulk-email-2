@@ -1,0 +1,16 @@
+/Application Data/
+/Cookies/
+/Documents/
+/Local Settings/
+/My Documents/
+/NetHood/
+/PrintHood/
+/Recent/
+/SendTo/
+/Start Menu/
+/Templates/
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+
