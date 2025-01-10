@@ -5,7 +5,7 @@ const Homepage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-indigo-600 text-white">
       {/* Navbar */}
       <header className="flex justify-between items-center px-6 py-4 bg-indigo-700 shadow-lg">
-        <h1 className="text-3xl font-extrabold text-yellow-400">Bulk Mailer</h1>
+        <h1 className="text-3xl font-extrabold text-yellow-400"> MegaMailer</h1>
         <nav className="flex gap-6 text-lg">
           <a href="#features" className="hover:text-yellow-300">Features</a>
           <a href="#upload" className="hover:text-yellow-300">Upload</a>
