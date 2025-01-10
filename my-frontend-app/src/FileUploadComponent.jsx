@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 const FileUploadComponent = () => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('');
+  const [scheduleEmail, setScheduleEmail] = useState(false);
+  const [scheduleTime, setScheduleTime] = useState('');
 
   // Handle file change
   const handleFileChange = (e) => {
@@ -46,7 +48,8 @@ const FileUploadComponent = () => {
 
     const formData = new FormData();
     formData.append('csvFile', file);  // Ensure this matches multer's expected field name
-    console.log(file);
+    formData.append('scheduleEmail', scheduleEmail); // Add scheduling option
+    formData.append('scheduleTime', scheduleTime); // Add schedule time
 
     try {
       const response = await fetch('http://localhost:3000/upload-csv', {
@@ -85,6 +88,29 @@ const FileUploadComponent = () => {
           name="csvFile"  // Field name should be 'csvFile'
           onChange={handleFileChange}
         />
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={scheduleEmail}
+              onChange={(e) => setScheduleEmail(e.target.checked)}
+            />
+            Schedule Emails
+          </label>
+        </div>
+        {scheduleEmail && (
+          <div>
+            <label>
+              Schedule Time (e.g., 5m for 5 minutes, 1h for 1 hour):
+              <input
+                type="text"
+                value={scheduleTime}
+                onChange={(e) => setScheduleTime(e.target.value)}
+                placeholder="e.g., 5m, 1h"
+              />
+            </label>
+          </div>
+        )}
         <button type="submit">Upload</button>
       </form>
       <p>{status}</p>

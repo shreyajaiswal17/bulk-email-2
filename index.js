@@ -7,17 +7,20 @@ const SibApiV3Sdk = require('sib-api-v3-sdk'); // Brevo SDK
 const User = require('./models/User'); // MongoDB User model
 const cors = require('cors');
 const axios = require('axios'); // For tracking clicks
-
+require('dotenv').config();
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 
+// Dynamic email content
+let dynamicEmailContent = '<h1>Default Email Content</h1><p>This is the default content.</p>';
+
 // Initialize Brevo API
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = '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'; // Replace with your Brevo API key
+apiKey.apiKey = process.env.BREVO_API_KEY;// Replace with your Brevo API key
 const contactsApi = new SibApiV3Sdk.ContactsApi();
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -41,48 +44,70 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Helper function to convert schedule time into milliseconds
+const parseScheduleTime = (time) => {
+  const regex = /(\d+)([smh])/; // Regex to match numbers with time units (seconds, minutes, hours)
+  const match = time.match(regex);
+  if (!match) return null;
+
+  const value = parseInt(match[1], 10);
+  const unit = match[2];
+
+  let delay = 0;
+  switch (unit) {
+    case 's':  // seconds
+      delay = value * 1000;
+      break;
+    case 'm':  // minutes
+      delay = value * 60 * 1000;
+      break;
+    case 'h':  // hours
+      delay = value * 60 * 60 * 1000;
+      break;
+    default:
+      return null;
+  }
+
+  return delay;
+};
+
 // Helper function to validate email format
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// Helper function to add a user to Brevo contacts and send transactional email
-const addUserToBrevo = async (name, email) => {
-  const contactData = {
-    email,
-    attributes: { FIRSTNAME: name },
-    listIds: [7], // Replace with your Brevo list ID
-    updateEnabled: true, // Enables updating if contact already exists
-  };
+// Endpoint to set dynamic email content
+app.post('/send-email-content', async (req, res) => {
+  const { emailContent, scheduleEmail, scheduleTime } = req.body;
+  if (!emailContent) {
+    return res.status(400).json({ message: 'Email content is required.' });
+  }
 
   try {
-    // Add the user to Brevo's contact database
-    const response = await contactsApi.createContact(contactData);
-    console.log(`User added to Brevo: ${email}`, response);
+    console.log('Received email content:', emailContent);
+    dynamicEmailContent = emailContent; // Save the email content for later use
 
-    // Send a transactional email to the user
+  
+  } catch (error) {
+    console.error('Error processing email content:', error);
+    res.status(500).json({ message: 'An error occurred while processing the email content.' });
+  }
+});
+
+// Helper function to send email
+const sendEmail = async (email) => {
+  try {
     const sendSmtpEmail = {
       sender: { email: 'lavanya.varshney2104@gmail.com', name: 'Lavanya Varshney' },
-      to: [{ email }],
-      subject: 'Welcome to Our Service!',
-      htmlContent: '<h1>Welcome to Our Service!</h1><p>Click <a href="https://example.com">here</a> to visit our site.</p><img src="https://localhost:3000/tracking-pixel?email=${cleanedEmail}" width="1" height="1" />',
+      to: [{email}],
+      subject: 'Welcome Email',
+      htmlContent: dynamicEmailContent,
     };
-
-    // Send the email
     const emailResponse = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Transactional email sent to:', email, emailResponse);
-
-    // Return email response for tracking metrics
-    return {
-      status: 'sent',  // The email was successfully sent
-      messageId: emailResponse.messageId, // Store message ID for tracking
-      email,
-    };
-
+    console.log('Email sent:', emailResponse);
   } catch (error) {
-    console.error(`Error processing user ${email}:`, error.response?.body || error.message);
-    throw error; // Throw error to be handled by the caller
+    console.error('Error sending email:', error);
   }
 };
 
@@ -133,26 +158,26 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
 
           // If no duplicate, add user to the valid array
           validUsers.push({ name: cleanedName, email: cleanedEmail });
-
+        // Schedule the email if scheduling parameters are provided
+        if (req.body.scheduleEmail && req.body.scheduleTime) {
+          const delay = parseScheduleTime(req.body.scheduleTime);
+          if (delay !== null) {
+            setTimeout(async () => {
+              await sendEmail(cleanedEmail);
+              console.log(`Scheduled email sent to ${cleanedEmail} after ${req.body.scheduleTime}`);
+            }, delay);
+          } else {
+            console.log(`Invalid schedule time for ${cleanedEmail}. Email not scheduled.`);
+          }
+        } else {
+          // Send email immediately if no schedule is set
+          await sendEmail(cleanedEmail);
+        }
           // Add the user to Brevo's contact database and send transactional email
           const emailMetrics = await addUserToBrevo(cleanedName, cleanedEmail);
 
           // Log email metrics for manual tracking
           console.log('Email Metrics for user:', cleanedEmail, emailMetrics);
-
-          // Example: Track delivery (success/failure)
-          const emailMetricsInDb = {
-            email: cleanedEmail,
-            status: emailMetrics.status,  // "sent" for successful send
-            deliveryTime: new Date(),
-            messageId: emailMetrics.messageId,
-          };
-
-          // Save email metrics to MongoDB (create a new model for email metrics)
-          // Assuming you have a model for EmailMetrics to store metrics in the database
-          const emailMetric = new EmailMetrics(emailMetricsInDb);
-          await emailMetric.save();
-
         } catch (error) {
           console.error('Error processing user:', error);
         }
@@ -172,7 +197,6 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
           res.status(400).json({ message: 'No valid users to add.' });
         }
 
-        // Log invalid users (if any)
         if (invalidUsers.length > 0) {
           console.log('Invalid Users:', invalidUsers);
         }
@@ -187,7 +211,7 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
     });
 });
 
-// Model to store email metrics (you should define this model in your Mongoose setup)
+// Model to store email metrics (for tracking email deliveries)
 const emailMetricsSchema = new mongoose.Schema({
   email: { type: String, required: true },
   status: { type: String, required: true },  // 'sent', 'failed', etc.
@@ -197,6 +221,15 @@ const emailMetricsSchema = new mongoose.Schema({
 
 const EmailMetrics = mongoose.model('EmailMetrics', emailMetricsSchema);
 
+// Model to store click events for email tracking
+const clickMetricsSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  timestamp: { type: Date, required: true },
+  clickCount: { type: Number, default: 0 }, // Default value for clickCount
+});
+
+const ClickMetrics = mongoose.model('ClickMetrics', clickMetricsSchema);
+
 // Route for email click tracking pixel
 app.get('/tracking-pixel', async (req, res) => {
   const { email } = req.query; // Capture email from the query params
@@ -205,26 +238,22 @@ app.get('/tracking-pixel', async (req, res) => {
   }
 
   try {
-    // Check if the email already exists in the database
-    let clickEvent = await ClickMetrics.findOne({ email: email });
+    let clickEvent = await ClickMetrics.findOne({ email });
 
     if (clickEvent) {
-      // If the email exists, increment the clickCount
       clickEvent.clickCount += 1;
       await clickEvent.save();
       console.log(`Click count for ${email} updated to ${clickEvent.clickCount}`);
     } else {
-      // If the email doesn't exist, create a new click event
       clickEvent = new ClickMetrics({
-        email: email,
+        email,
         timestamp: new Date(),
-        clickCount: 1, // First click
+        clickCount: 1,
       });
       await clickEvent.save();
       console.log(`New click event for ${email} created with count 1`);
     }
 
-    // Return a 1x1 transparent image to indicate successful tracking
     res.setHeader('Content-Type', 'image/png');
     res.send(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAUA...', 'base64')); // Transparent 1x1 image
   } catch (error) {
@@ -232,20 +261,6 @@ app.get('/tracking-pixel', async (req, res) => {
     res.status(500).send('Error tracking click.');
   }
 });
-
-
-// Model to store click events (you should define this model in your Mongoose setup)
-const clickMetricsSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  timestamp: { type: Date, required: true },
-  clickCount: { type: Number, default: 0 }, // Default value for clickCount
-});
-
-const ClickMetrics = mongoose.model('ClickMetrics', clickMetricsSchema);
-app.get('/tracking', (req, res) => {
-  res.send('Tracking endpoint is working!');
-});
-
 
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
