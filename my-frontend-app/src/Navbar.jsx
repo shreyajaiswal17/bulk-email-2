@@ -39,7 +39,7 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center px-4 py-3">
         {/* Logo */}
         <a href="/" className="text-2xl font-bold">
-          Sendyy
+          MegaMailer
         </a>
 
         {/* Menu Toggle Button (for mobile view) */}
