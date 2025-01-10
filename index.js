@@ -20,7 +20,7 @@ let dynamicEmailContent = '<h1>Default Email Content</h1><p>This is the default 
 // Initialize Brevo API
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = 'brevo key';// Replace with your Brevo API key
+apiKey.apiKey = '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';// Replace with your Brevo API key
 const contactsApi = new SibApiV3Sdk.ContactsApi();
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
