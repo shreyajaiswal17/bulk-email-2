@@ -99,32 +99,15 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navbar */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Mail className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-xl font-semibold text-gray-900">
-                Bulk Mailer
-              </span>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Homepage/>
+      
+    
 
       {/* Main Content */}
       <main className="py-8">
         <div className="max-w-4xl mx-auto px-4">
           {/* Hero Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-indigo-600 mb-4">
-              Effortlessly Reach Thousands!
-            </h1>
-            <p className="text-xl text-gray-600">
-              Power Your Communication with Our Bulk Email Sender Platform
-            </p>
-          </div>
+         
 
           {/* Email Content Editor */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -237,6 +220,14 @@ const App = () => {
           </form>
         </div>
       </main>
+      <footer id="contact" className="bg-indigo-700 py-6 text-center text-gray-200">
+        <p>© 2025 Bulk Mailer. All rights reserved.</p>
+        <p className="mt-2">
+          <a href="#home" className="hover:text-yellow-300">
+            Back to Top
+          </a>
+        </p>
+      </footer>
     </div>
   );
 };
