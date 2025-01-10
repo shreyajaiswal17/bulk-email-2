@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "./index.css";
 
 const FileUploadComponent = () => {
   const [file, setFile] = useState(null);
@@ -119,7 +120,7 @@ const FileUploadComponent = () => {
     
     <div class="container">
 
-  {/* <!-- Heading --> */}
+ 
   <h1 class="heading">
     <span class="highlighted-text">Effortlessly Reach Thousands !</span>
   </h1>

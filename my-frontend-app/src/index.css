@@ -1,4 +1,4 @@
-*{
+/* *{
   margin: 0;
   padding: 0;
   
@@ -13,9 +13,9 @@ a {
 a:hover {
   color: var(--hover-color);
   text-decoration: underline;
-}
+} */
 
-body {
+/* body {
   margin: 0;
   display: flex;
   align-items: center;
@@ -68,12 +68,12 @@ button:focus-visible {
     background-color: var(--button-bg-light);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
-}
+} */
 
 
 
 /* Navbar Styles */
- .navbar {
+ /* .navbar {
   background-color: #1e1e2f;
   color: var(--text-color);
   display: flex;
@@ -81,17 +81,17 @@ button:focus-visible {
   justify-content:center;
   padding : 0.8rem ;
   width: 100%; /* Full width for top alignment */
-  margin: 0; 
-  position: fixed; 
+  /* margin: 0; 
+  position: fixed;  */
    /* Fix the navbar at the top */
-  top: 0;
-  left: 0; 
- z-index: 1000;  
+  /* top: 0;
+  left: 0;  */
+ /* z-index: 1000;   */
   /* Ensure it stays above other elements */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); 
- }  
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); 
+ }   */
 
-.logo {
+/* .logo {
   font-size: 1rem;
   font-weight: 700;
   color: var(--primary-color);
@@ -105,8 +105,8 @@ button:focus-visible {
 
 .nav-links li {
   margin-left: 1.5rem;
-}
-
+} */
+/* 
 .nav-links li a {
   color: white;
   text-decoration: none;
@@ -126,68 +126,74 @@ button:focus-visible {
   color: var(--text-color);
   font-size: 1.5rem;
   cursor: pointer;
-} 
+}  */ 
 
 
 
 
 /* General container styles */
-.container {
+/* .container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 4rem; /* Tailwind's mt-16 */
-}
+  align-items: center; */
+  /* margin-top: 4rem;  */
+/* } */
 
 /* Heading styles */
-.heading {
+/* .heading {
   font-size: 2.25rem; /* Tailwind's text-4xl */
-  text-align: center;
+  /* text-align: center;
   font-weight: bold;
-  color: white;
-}
+  color: white; */
+/* }  */
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
   .heading {
     font-size: 3rem; /* Tailwind's md:text-5xl */
-  }
-}
-
+  /* }
+} */ 
+/* 
 @media (min-width: 1024px) {
   .heading {
-    font-size: 3.75rem; /* Tailwind's lg:text-6xl */
+    font-size: 3.75rem; 
   }
-}
+} */
 
 /* Highlighted text styles */
-.highlighted-text {
-  color: #CB6CE6; /* Specified highlight color */
-}
+/* .highlighted-text {
+  color: #CB6CE6; 
+} */
 
 /* Description container styles */
-.description {
+/* .description {
   display: flex;
   justify-content: center;
-  color: #9CA3AF; /* Tailwind's text-gray-400 */
-  margin-top: 1rem; /* Tailwind's mt-4 */
+  color: #9CA3AF; 
+  margin-top: 1rem; 
   text-align: center;
-  width: 91.666667%; /* Tailwind's w-11/12 */
-  max-width: 60%; /* Tailwind's md:w-3/5 */
+  width: 91.666667%; 
+  max-width: 60%; 
   margin-left: auto;
   margin-right: auto;
-}
+} */
 
 /* Paragraph text styles */
-.description p {
+/* .description p {
   font-size: 1.125rem; /* Tailwind's text-lg */
-}
+/* }  */
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
   .description p {
-    font-size: 1.25rem; /* Tailwind's md:text-xl */
+    font-size: 1.25rem; 
   }
-}
+} */
+
+/* .or{
+  display: flex;
+  align-items: center;
+} */
 
 
-
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

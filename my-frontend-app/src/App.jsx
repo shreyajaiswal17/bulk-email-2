@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import FileUploadComponent from "./FileUploadComponent";
+import FileUploadComponentt from "./FileUploadComponent";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import the styles for the editor
+import "./index.css";
 
 import Navbar from './Navbar';
 
@@ -43,9 +44,7 @@ function App() {
     <div className="App">
     
       <Navbar/>
-    <FileUploadComponent/>
     
-     
       <h2>Email Content Editor</h2>
       <ReactQuill
         value={emailContent}
@@ -53,7 +52,10 @@ function App() {
         placeholder="Write your email content here..."
       />
        <button onClick={handleSubmit}>Submit Email Content</button>
-       <FileUploadComponent />
+     <div className="or"> <h1>OR</h1></div>
+
+       <FileUploadComponentt/>
+       
     </div>
   );
 }
