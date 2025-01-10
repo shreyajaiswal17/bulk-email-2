@@ -3,6 +3,8 @@ import FileUploadComponent from "./FileUploadComponent";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; // Import the styles for the editor
 
+import Navbar from './Navbar';
+
 function App() {
   const [emailContent, setEmailContent] = useState("");
  
@@ -39,6 +41,10 @@ function App() {
 
   return (
     <div className="App">
+    
+      <Navbar/>
+    <FileUploadComponent/>
+    
      
       <h2>Email Content Editor</h2>
       <ReactQuill
