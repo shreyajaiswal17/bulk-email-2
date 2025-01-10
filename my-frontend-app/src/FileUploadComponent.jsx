@@ -44,8 +44,9 @@ const FileUploadComponent = () => {
   };
 
   return (
+    <>
     <div className="file-upload-container">
-      <h1>Upload CSV File</h1>
+      <h1>Upload Your CSV File</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="file"
@@ -56,7 +57,25 @@ const FileUploadComponent = () => {
       </form>
       <p>{status}</p>
     </div>
+    
+    <div class="container">
+
+  {/* <!-- Heading --> */}
+  <h1 class="heading">
+    <span class="highlighted-text">Effortlessly Reach Thousands !</span>
+  </h1>
+</div>
+
+<div class="description">
+  <p>
+    Power Your Communication with Our Bulk Email Sender Platform!
+  </p>
+</div>
+
+    </>
   );
+
+  
 };
 
 export default FileUploadComponent;
