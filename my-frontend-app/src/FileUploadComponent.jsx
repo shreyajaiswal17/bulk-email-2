@@ -1,55 +1,50 @@
 import React, { useState } from 'react';
+import { Upload, Clock, Send } from 'lucide-react';
 
 const FileUploadComponent = () => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('');
   const [scheduleEmail, setScheduleEmail] = useState(false);
   const [scheduleTime, setScheduleTime] = useState('');
+  const [emailContent, setEmailContent] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Handle file change
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     setFile(uploadedFile);
   };
 
-  // Function to fetch email events from Brevo
   const getEmailEvents = async () => {
     try {
       const response = await fetch('https://api.brevo.com/v3/events', {
         method: 'GET',
         headers: {
-          'api-key': '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', // Correct way to pass API key in Brevo
+          'api-key': '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',
           'Content-Type': 'application/json',
         },
       });
-
-      if (!response.ok) {
-        throw new Error(`Error fetching email events: ${response.statusText}`);
-      }
-
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
       const data = await response.json();
-      console.log('Email Events Data:', data);
       return data;
     } catch (error) {
       console.error('Error fetching email events:', error);
     }
   };
 
-  // Handle form submission (file upload)
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!file) {
       setStatus('Please select a file to upload.');
       return;
     }
 
+    setIsUploading(true);
     setStatus('Uploading...');
 
     const formData = new FormData();
-    formData.append('csvFile', file);  // Ensure this matches multer's expected field name
-    formData.append('scheduleEmail', scheduleEmail); // Add scheduling option
-    formData.append('scheduleTime', scheduleTime); // Add schedule time
+    formData.append('csvFile', file);
+    formData.append('scheduleEmail', scheduleEmail);
+    formData.append('scheduleTime', scheduleTime);
 
     try {
       const response = await fetch('http://localhost:3000/upload-csv', {
@@ -61,14 +56,9 @@ const FileUploadComponent = () => {
 
       if (response.ok) {
         setStatus('File uploaded successfully!');
-        
-        // After file upload, fetch email events
         const events = await getEmailEvents();
-        
-        // Optionally, you can process the events data here
         if (events) {
           console.log('Email Events:', events);
-          // You can display the events or calculate open/click rates here
         }
       } else {
         setStatus(`Error: ${result.message}`);
@@ -76,65 +66,149 @@ const FileUploadComponent = () => {
     } catch (error) {
       console.error('Error uploading file:', error);
       setStatus('Failed to upload file.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleEmailContentSubmit = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/send-email-content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ emailContent }),
+      });
+
+      if (response.ok) {
+        alert("Email content submitted successfully!");
+      } else {
+        alert("Failed to submit email content.");
+      }
+    } catch (error) {
+      alert("An error occurred while submitting the email content.");
     }
   };
 
   return (
-    <>
-    <div className="file-upload-container">
-      <h1>Upload Your CSV File</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="file"
-          name="csvFile"  // Field name should be 'csvFile'
-          onChange={handleFileChange}
-        />
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={scheduleEmail}
-              onChange={(e) => setScheduleEmail(e.target.checked)}
-            />
-            Schedule Emails
-          </label>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-indigo-600 mb-4">
+            Effortlessly Reach Thousands!
+          </h1>
+          <p className="text-xl text-gray-600">
+            Power Your Communication with Our Bulk Email Sender Platform
+          </p>
         </div>
-        {scheduleEmail && (
-          <div>
-            <label>
-              Schedule Time (e.g., 5m for 5 minutes, 1h for 1 hour):
-              <input
-                type="text"
-                value={scheduleTime}
-                onChange={(e) => setScheduleTime(e.target.value)}
-                placeholder="e.g., 5m, 1h"
+
+        {/* Main Content */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Email Content Editor</h2>
+            <div className="bg-white border rounded-lg p-4">
+              <textarea
+                value={emailContent}
+                onChange={(e) => setEmailContent(e.target.value)}
+                className="w-full h-64 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Write your email content here..."
               />
-            </label>
+            </div>
           </div>
-        )}
-        <button type="submit">Upload</button>
-      </form>
-      <p>{status}</p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* File Upload Section */}
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <div className="mt-4">
+                <input
+                  type="file"
+                  name="csvFile"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Select CSV File
+                </label>
+                {file && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    Selected: {file.name}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Scheduling Options */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  checked={scheduleEmail}
+                  onChange={(e) => setScheduleEmail(e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <span className="text-gray-700">Schedule Emails</span>
+              </label>
+
+              {scheduleEmail && (
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Schedule Time
+                    <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Clock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                        placeholder="e.g., 5m, 1h"
+                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* Status Message */}
+            {status && (
+              <div className={`text-sm ${status.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+                {status}
+              </div>
+            )}
+
+            {/* Submit Buttons */}
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                disabled={isUploading}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {isUploading ? 'Uploading...' : 'Upload CSV'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleEmailContentSubmit}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Submit Email Content
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    
-    <div class="container">
-
-  {/* <!-- Heading --> */}
-  <h1 class="heading">
-    <span class="highlighted-text">Effortlessly Reach Thousands !</span>
-  </h1>
-</div>
-
-<div class="description">
-  <p>
-    Power Your Communication with Our Bulk Email Sender Platform!
-  </p>
-</div>
-
-    </>
   );
-
-  
 };
 
 export default FileUploadComponent;

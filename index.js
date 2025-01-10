@@ -7,7 +7,7 @@ const SibApiV3Sdk = require('sib-api-v3-sdk'); // Brevo SDK
 const User = require('./models/User'); // MongoDB User model
 const cors = require('cors');
 const axios = require('axios'); // For tracking clicks
-require('dotenv').config();
+
 const app = express();
 const PORT = 3000;
 
@@ -20,7 +20,7 @@ let dynamicEmailContent = '<h1>Default Email Content</h1><p>This is the default 
 // Initialize Brevo API
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;// Replace with your Brevo API key
+apiKey.apiKey = 'brevo key';// Replace with your Brevo API key
 const contactsApi = new SibApiV3Sdk.ContactsApi();
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
