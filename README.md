@@ -22,7 +22,7 @@ Open rate tracking using embedded tracking pixels.
 * Frontend: React.js
 * Axios: To handle API requests.
 * Backend: Node.js + Express: For server-side logic and API endpoints.
-* Nodemailer: For email sending.
+* Brevo: For email sending.
 
 * Database: MongoDB
 
