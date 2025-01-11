@@ -4,7 +4,7 @@ import SimpleMDE from "react-simplemde-editor";
 import { Upload, Clock, Send, Mail } from "lucide-react";
 import "simplemde/dist/simplemde.min.css";
 import "./index.css"; // Adjust with your CSS file path
-
+import Homepage from "./Homepage";
 const App = () => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
@@ -32,7 +32,7 @@ const App = () => {
     formData.append("csvFile", file);
     formData.append("scheduleEmail", scheduleEmail);
     formData.append("scheduleTime", scheduleTime);
-
+    formData.append("emailContent", emailContent);  // Include the email content here
     try {
 
       const response = await fetch("http://localhost:3000/upload-csv", {

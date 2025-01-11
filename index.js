@@ -15,12 +15,18 @@ app.use(cors());
 app.use(express.json());
 
 // Dynamic email content
-let dynamicEmailContent = '<h1>Default Email Content</h1><p>This is the default content.</p>';
+let dynamicEmailContent = `
+  <h1>Welcome to Our Service, {{name}}!</h1>
+  <p>Your registered email is: {{email}}</p>
+  <p>We're excited to have you on board.</p>
+  <p>Best regards, <br> The Team</p>
+`;
+
 
 // Initialize Brevo API
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = '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';// Replace with your Brevo API key
+apiKey.apiKey = 'api key';// Replace with your Brevo API key
 const contactsApi = new SibApiV3Sdk.ContactsApi();
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -80,13 +86,16 @@ const isValidEmail = (email) => {
 // Endpoint to set dynamic email content
 app.post('/send-email-content', async (req, res) => {
   const { emailContent, scheduleEmail, scheduleTime } = req.body;
-  if (!emailContent) {
-    return res.status(400).json({ message: 'Email content is required.' });
+  if (emailContent) {
+    dynamicEmailContent = emailContent; // Save the email content for later use
+  } else {
+    // Default personalized message
+    dynamicEmailContent = '<h1>Welcome, {{name}}!</h1><p>This is your personalized content. Feel free to explore!</p>';
   }
 
   try {
     console.log('Received email content:', emailContent);
-    dynamicEmailContent = emailContent; // Save the email content for later use
+    res.status(200).json({ message: 'Email content updated successfully' });
 
   
   } catch (error) {
@@ -96,13 +105,17 @@ app.post('/send-email-content', async (req, res) => {
 });
 
 // Helper function to send email
-const sendEmail = async (email) => {
+const sendEmail = async (name,email) => {
   try {
+     // Replace {{name}} placeholder with the actual user name
+     const personalizedEmailContent = dynamicEmailContent
+     .replace('{{name}}', name)
+     .replace('{{email}}', email); // You can replace other placeholders too
     const sendSmtpEmail = {
       sender: { email: 'lavanya.varshney2104@gmail.com', name: 'Lavanya Varshney' },
       to: [{email}],
       subject: 'Welcome Email',
-      htmlContent: dynamicEmailContent,
+      htmlContent: personalizedEmailContent,
     };
     const emailResponse = await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log('Email sent:', emailResponse);
@@ -112,7 +125,7 @@ const sendEmail = async (email) => {
 };
 
 // Route to upload CSV file and create a campaign
-app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
+ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
@@ -121,7 +134,7 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
   const filePath = req.file.path;
   const validUsers = [];
   const invalidUsers = [];
-
+  let dynamicEmailContent = req.body.emailContent || dynamicEmailContent;  // Use uploaded content or default
   // Parse the CSV file
   const rows = [];
   fs.createReadStream(filePath)
@@ -163,7 +176,7 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
           const delay = parseScheduleTime(req.body.scheduleTime);
           if (delay !== null) {
             setTimeout(async () => {
-              await sendEmail(cleanedEmail);
+              await sendEmail(cleanedName,cleanedEmail);
               console.log(`Scheduled email sent to ${cleanedEmail} after ${req.body.scheduleTime}`);
             }, delay);
           } else {
@@ -171,13 +184,9 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
           }
         } else {
           // Send email immediately if no schedule is set
-          await sendEmail(cleanedEmail);
+          await sendEmail(cleanedName,cleanedEmail);
         }
-          // Add the user to Brevo's contact database and send transactional email
-          const emailMetrics = await addUserToBrevo(cleanedName, cleanedEmail);
-
-          // Log email metrics for manual tracking
-          console.log('Email Metrics for user:', cleanedEmail, emailMetrics);
+        
         } catch (error) {
           console.error('Error processing user:', error);
         }
@@ -210,58 +219,6 @@ app.post('/upload-csv', upload.single('csvFile'), async (req, res) => {
       res.status(500).json({ message: 'Error parsing CSV file' });
     });
 });
-
-// Model to store email metrics (for tracking email deliveries)
-const emailMetricsSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  status: { type: String, required: true },  // 'sent', 'failed', etc.
-  deliveryTime: { type: Date, required: true },
-  messageId: { type: String, required: true },
-});
-
-const EmailMetrics = mongoose.model('EmailMetrics', emailMetricsSchema);
-
-// Model to store click events for email tracking
-const clickMetricsSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  timestamp: { type: Date, required: true },
-  clickCount: { type: Number, default: 0 }, // Default value for clickCount
-});
-
-const ClickMetrics = mongoose.model('ClickMetrics', clickMetricsSchema);
-
-// Route for email click tracking pixel
-app.get('/tracking-pixel', async (req, res) => {
-  const { email } = req.query; // Capture email from the query params
-  if (!email) {
-    return res.status(400).send('No email provided for click tracking.');
-  }
-
-  try {
-    let clickEvent = await ClickMetrics.findOne({ email });
-
-    if (clickEvent) {
-      clickEvent.clickCount += 1;
-      await clickEvent.save();
-      console.log(`Click count for ${email} updated to ${clickEvent.clickCount}`);
-    } else {
-      clickEvent = new ClickMetrics({
-        email,
-        timestamp: new Date(),
-        clickCount: 1,
-      });
-      await clickEvent.save();
-      console.log(`New click event for ${email} created with count 1`);
-    }
-
-    res.setHeader('Content-Type', 'image/png');
-    res.send(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAUA...', 'base64')); // Transparent 1x1 image
-  } catch (error) {
-    console.error('Error tracking click:', error);
-    res.status(500).send('Error tracking click.');
-  }
-});
-
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on http://localhost:${PORT}`);
