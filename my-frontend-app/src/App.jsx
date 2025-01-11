@@ -221,7 +221,7 @@ const App = () => {
         </div>
       </main>
       <footer id="contact" className="bg-indigo-700 py-6 text-center text-gray-200">
-        <p>© 2025 Bulk Mailer. All rights reserved.</p>
+        <p>© 2025  MegaMailer. All rights reserved.</p>
         <p className="mt-2">
           <a href="#home" className="hover:text-yellow-300">
             Back to Top
