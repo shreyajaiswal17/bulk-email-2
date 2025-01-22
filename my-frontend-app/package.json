@@ -19,6 +19,7 @@
     "react-quill": "^2.0.0",
     "react-router-dom": "^7.1.1",
     "react-simplemde-editor": "^5.2.0",
+    "recharts": "^2.15.0",
     "simplemde": "^1.11.2"
   },
   "devDependencies": {

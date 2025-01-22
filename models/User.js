@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique:true
   },
+  password: { type: String },
+  subscribed: { type: Boolean, default: true }, // Add this field
 });
 
 const User = mongoose.model('User', userSchema);
