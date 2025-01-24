@@ -12,8 +12,10 @@ const { appendFile } = require('fs/promises');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const emailTracking = {}; // { email: { delivered: count, clicked: count } }
-app.use(cors());
+// Allow requests from your frontend origin
+app.use(cors);
 app.use(express.json());
 app.post('/signup', async (req, res) => {
   const { name, email, password, confirmPassword  } = req.body;
@@ -216,8 +218,8 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // Connect to MongoDB
 // Connect to MongoDB Atlas
-mongoose.set('bufferCommands', false); // Disable buffering
-mongoose.connect('mongodb+srv://Lavanya:RxqvMSu1Yj8euerR@cluster0.2arb0.mongodb.net/csv-upload?retryWrites=true&w=majority', {
+
+mongoose.connect('`${process.env.MONGODB_URI}`?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 50000, // 5 seconds timeout
