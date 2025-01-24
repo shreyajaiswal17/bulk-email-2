@@ -25,7 +25,9 @@ const AuthForm = ({onLogin}) => {
     setSuccess("");
 console.log(formData);
     try {
-      const endpoint = isLogin ? "http://localhost:3000/login" : "http://localhost:3000/signup";
+      const endpoint = isLogin 
+      ? `${import.meta.env.VITE_BACKEND_URL}/login` 
+      : `${import.meta.env.VITE_BACKEND_URL}/signup`;
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
@@ -40,7 +42,7 @@ console.log(formData);
       });
 
       const data = await response.json();
-      console.log("Response status:", response.status);
+     
            if (!response.ok) {
         throw new Error(data.message || "Something went wrong");
       }
@@ -52,15 +54,19 @@ console.log(formData);
         onLogin(); // Call the onLogin prop
         navigate('/home'); // Redirect to home page after login
   // Call to the backend to add the current user as a verified sender
-   const addSenderResponse = await fetch("http://localhost:3000/add-verified-sender", {
+   const addSenderResponse = await fetch(import.meta.env.VITE_BACKEND_URL/add-verified-sender, {
     method: "POST",
     headers: {
+
       "Authorization": data.token,  // Send the token
       "Content-Type": "application/json",
     },
   });
 
   const addSenderData = await addSenderResponse.json();
+
+
+  
   if (addSenderResponse.ok) {
     console.log("Sender added:", addSenderData);
   } else {

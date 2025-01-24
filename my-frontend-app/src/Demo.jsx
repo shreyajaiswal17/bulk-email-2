@@ -78,7 +78,7 @@ const Demo = () => {
     const token = localStorage.getItem("token");  // Retrieve token from localStorage
     console.log("token", token);
     try {
-      const response = await fetch("http://localhost:3000/upload-csv", {
+      const response = await fetch("import .meta.env.BACKEND_URL/upload-csv", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,  // Include token in the request headers
@@ -106,7 +106,7 @@ const Demo = () => {
     const token = localStorage.getItem("token");  // Retrieve token from localStorage
     console.log("token", token);
     try {
-      const response = await fetch('http://localhost:3000/send-manual-emails', {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL/send-manual-emails, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

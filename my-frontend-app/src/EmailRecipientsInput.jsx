@@ -48,7 +48,7 @@ let emailList=[];
     setError('');
    
     try {
-        const response = await axios.post('http://localhost:3000/send-manual-emails', {
+        const response = await axios.post('import.meta.env.BACKEND_URL/send-manual-emails', {
        emailList:recipients,
         });
  console.log("emailList",emailList)
