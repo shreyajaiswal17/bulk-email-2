@@ -219,7 +219,7 @@ const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 // Connect to MongoDB
 // Connect to MongoDB Atlas
 
-mongoose.connect('`${process.env.MONGODB_URI}`?retryWrites=true&w=majority', {
+mongoose.connect(`${process.env.MONGODB_URI}?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 50000, // 5 seconds timeout
@@ -227,6 +227,7 @@ mongoose.connect('`${process.env.MONGODB_URI}`?retryWrites=true&w=majority', {
 })
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch((error) => console.error('Error connecting to MongoDB Atlas:', error));
+
 
 // Setup multer for file upload
 const storage = multer.diskStorage({
@@ -601,6 +602,6 @@ const tokenWithoutBearer = token.startsWith('Bearer ') ? token.split(' ')[1] : t
 });
 
 // Start the server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
