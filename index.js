@@ -11,7 +11,7 @@ const { generateToken, verifyToken } = require('./login'); // Adjust the path to
 const { appendFile } = require('fs/promises');
 const bcrypt = require('bcrypt');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const emailTracking = {}; // { email: { delivered: count, clicked: count } }
 app.use(cors());
 app.use(express.json());
@@ -103,7 +103,7 @@ app.get('/current-user', async (req, res) => {
   }
 });
 const checkIfSenderExists = async (email) => {
-  const apiKey = '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'; // Replace with your actual Brevo API key
+  const apiKey = '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'; // Replace with your actual Brevo API key
   const url = 'https://api.brevo.com/v3/senders'; // Endpoint to get the list of senders
 
   try {
@@ -215,12 +215,16 @@ apiKey.apiKey = 'xkeysib-5ea595c9e40bd5dba175f130ebeae65369fa3840f6e51dce3fce111
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/csv-upload', {
+// Connect to MongoDB Atlas
+mongoose.set('bufferCommands', false); // Disable buffering
+mongoose.connect('mongodb+srv://Lavanya:RxqvMSu1Yj8euerR@cluster0.2arb0.mongodb.net/csv-upload?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 50000, // 5 seconds timeout
+  heartbeatFrequencyMS: 20000,
 })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((error) => console.error('Error connecting to MongoDB:', error));
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch((error) => console.error('Error connecting to MongoDB Atlas:', error));
 
 // Setup multer for file upload
 const storage = multer.diskStorage({
